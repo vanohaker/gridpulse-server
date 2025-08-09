@@ -1,0 +1,13 @@
+redis:
+  host: redis-host
+  port: 6379
+  database: 1
+postgrees:
+  host: postgres-host
+  port: 5432
+  dbname: gridpulse
+  user: gridpulse
+  password: changeme
+app:
+  bind: 0.0.0.0
+  port: 8080
