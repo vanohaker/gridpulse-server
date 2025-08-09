@@ -1,0 +1,253 @@
+openapi: 3.0.4
+info:
+  title: GridPulse API
+  description: GridPulse server Core-API
+  version: 1.0.0
+servers:
+  - url: http://api.gridpulse.local
+    description: Local server
+tags:
+  - name: system
+    description: System endpoints
+  - name: oauth
+    description: Oauth2 user identification logic
+  - name: user
+    description: Actions with user accounts
+paths:
+  /v1/user/register:
+    post:
+      summary: Register new user
+      operationId: User_Register_V1
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterNewUser'
+      responses:
+        '200':
+          description: Registration Sucess
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterNewUserSucess'
+        '403':
+          description: Register denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcessDenied'
+        '500':
+          description: Internal Sserver Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+  /v1/user/login:
+    post:
+      summary: Login user
+      operationId: Login_User_V1
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login sucess
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginSucess'
+        '500':
+          description: Login internal error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerError'
+  /v1/oauth/add:
+    post:
+      summary: Add oauth provider
+      operationId: Add_Oauth_Provider_V1
+      tags:
+        - oauth
+      security:
+        - bearerAuth: []
+      requestBody:
+        required:  true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+      responses:
+        '403':
+          description: Access denied
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/data'
+  /v1/devices/add:
+    post:
+      summary: Add device
+      operationId: Device_Add_V1
+      tags:
+        - devices
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+      responses:
+        default:
+          description: Add device default
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/deviceAdd'
+  /livenes:
+    get:
+      summary: Livenes Probe
+      operationId: Livenesprobe
+      tags:
+        - system
+      responses:
+        default:
+          description: LivenesProbe default
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/livenesProbe'
+              
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    livenesProbe:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          type: object
+          required:
+            - postgres
+            - redis
+          properties:
+            postgres:
+              type: string
+            redis:
+              type: string
+    RegisterNewUser:
+      type: object
+      required:
+        - username
+        - password
+        - email
+        - accept
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        accept:
+          type: boolean
+    RegisterNewUserSucess:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/UserAuthData'
+    LoginSucess:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/UserAuthData'
+    InternalServerError:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/data'
+    AcessDenied:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/data'
+    UserAuthData:
+      type: object
+      required:
+        - acesstoken
+        - refreshtoken
+        - userdata
+      properties:
+        acesstoken:
+          type: string
+        refreshtoken:
+          type: string
+        userdata:
+          $ref: '#/components/schemas/UserData'
+    UserData:
+      type: object
+      required:
+        - username
+        - email
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+    data:
+      type: object
+      required:
+        - msg
+      properties:
+        msg:
+          type: string
+    deviceAdd:
+      type: object
+      required:
+        - uuid
+      properties:
+        uuid:
+          type: string

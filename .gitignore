@@ -1,0 +1,12 @@
+# ide data
+.vscode
+.devcontainer
+
+# container data
+/.pgdata
+
+# environment
+.local.env
+config.local.yaml
+
+tmp

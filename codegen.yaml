@@ -1,0 +1,5 @@
+package: codegen
+generate:
+  fiber-server: true
+  models: true
+output: ../codegen/gen.go
