@@ -1,0 +1,82 @@
+services:
+  devcontainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: "sleep infinity"
+    volumes:
+    - ../:/workspaces/gridpulse-server:cached,rw
+    depends_on:
+    - postgres
+    - keyclock
+    - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.entrypoints=web"
+      - "traefik.http.routers.api.rule=Host(`api.gridpulse.local`) && PathPrefix(`/`)"
+      - "traefik.http.services.api.loadbalancer.server.port=8081"
+  traefik:
+    image: traefik:3.4.1
+    restart: unless-stopped
+    ports:
+      - 0.0.0.0:80:80
+      - 0.0.0.0:8080:8080
+      - 0.0.0.0:443:443
+    volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    command:
+    - "--api=true"
+    - "--api.dashboard=true"
+    - "--api.insecure=true"
+    - "--entrypoints.web"
+    - "--entryPoints.web.address=:80"
+    - "--providers.docker"
+    - "--accesslog=true"
+    - "--log.level=DEBUG"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.t.entrypoints=web"
+      - "traefik.http.routers.t.rule=Host(`t.gridpulse.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
+      - "traefik.http.services.t.loadbalancer.server.port=8080"
+      # - "traefik.http.routers.t.service=dashboard@internal"
+  postgres:
+    image: postgres:17.5
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_MULTIPLE_DATABASES: keycloak,gridpulse
+    ports:
+      - 0.0.0.0:5432:5432
+    volumes:
+      - ./scripts/postgresql/multiple-databases.sh:/docker-entrypoint-initdb.d/multiple-databases.sh
+      - gridpulse-pg-data:/var/lib/postgresql/data
+  keyclock:
+    image: quay.io/keycloak/keycloak:26.2
+    command: ["start-dev", "--import-realm"]
+    restart: unless-stopped
+    depends_on:
+    - postgres
+    environment:
+      KC_DB: postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: password123
+      KC_DB_URL: "jdbc:postgresql://postgres:5432/keycloak"
+      KC_METRICS_ENABLED: false
+      KC_LOG_LEVEL: ERROR
+      KC_REALM_NAME: development
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: password
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.kk.entrypoints=web"
+      - "traefik.http.routers.kk.rule=Host(`auth.gridpulse.local`) && PathPrefix(`/`)"
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+volumes:
+  gridpulse-pg-data:
