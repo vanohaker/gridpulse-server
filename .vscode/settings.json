@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "*.yaml": "yaml"
+    },
+    "yaml.schemas": {
+        "https://www.schemastore.org/yamllint.json": "file:///home/iglazkov/git/gridpulse-server/codegen.yaml"
+    },
+    "idf.pythonInstallPath": "/home/iglazkov/.platformio/penv/bin/python"
+}

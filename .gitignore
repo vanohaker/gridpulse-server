@@ -1,6 +1,6 @@
 # ide data
-.vscode
-.devcontainer
+# .vscode
+# .devcontainer
 
 # container data
 /.pgdata
