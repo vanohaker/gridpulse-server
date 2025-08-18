@@ -31,8 +31,12 @@ type Postgres struct {
 }
 
 type AppRes struct {
-	Bind string `yaml:"bind"`
-	Port string `yaml:"port"`
+	AppNAme     string
+	AppFullName string
+	Tag         string
+	Commit      string
+	Bind        string `yaml:"bind"`
+	Port        string `yaml:"port"`
 }
 
 func LoadConfig(logger zerolog.Logger, configPath *string) (*ConfigYaml, error) {
@@ -60,7 +64,7 @@ func LoadConfig(logger zerolog.Logger, configPath *string) (*ConfigYaml, error) 
 	config.Postgres.Password = viper.GetString("postgres.password")
 	config.Postgres.DbString = func() string {
 		// postgres://user:password@qwerty.us-east-1.redshift.amazonaws.com:5439/db
-		return fmt.Sprintf("postgres://%s:%s@%s:%v/%s", config.Postgres.User, config.Postgres.Password, config.Postgres.Host, config.Postgres.Port, config.Postgres.Dbname)
+		return fmt.Sprintf("postgres://%s:%s@%s:%v/%s?application_name=GridPulse", config.Postgres.User, config.Postgres.Password, config.Postgres.Host, config.Postgres.Port, config.Postgres.Dbname)
 	}()
 	config.AppRes.Bind = viper.GetString("app.bind")
 	config.AppRes.Port = viper.GetString("app.port")

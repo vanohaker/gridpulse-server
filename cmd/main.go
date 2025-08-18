@@ -23,14 +23,14 @@ import (
 	"github.com/vanohaker/gridpulse-server/codegen"
 	"github.com/vanohaker/gridpulse-server/internal/api"
 	"github.com/vanohaker/gridpulse-server/internal/config"
-	"github.com/vanohaker/gridpulse-server/internal/database"
+	"github.com/vanohaker/gridpulse-server/internal/database/postgres"
 	_ "github.com/vanohaker/gridpulse-server/internal/migrations"
 	glog "go.finelli.dev/gooseloggers/zerolog"
 )
 
 var (
 	ctx      = context.Background()
-	pgdb     *database.DatabaseStr
+	pgdb     *postgres.DatabaseStr
 	rdb      *redis.Client
 	conf     *config.ConfigYaml
 	logger   zerolog.Logger
@@ -64,7 +64,7 @@ func init() {
 	if err != nil {
 		logger.Fatal().Err(err).Msg("")
 	}
-	pgdb, err = database.Initialize(ctx, conf, logger)
+	pgdb, err = postgres.Initialize(ctx, conf, logger)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("")
 	}
@@ -78,15 +78,23 @@ func init() {
 func main() {
 	defer pgdb.PgxPool.Close()
 	defer rdb.Close()
+
 	connection, err := pgdb.PgxPool.Acquire(ctx)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("")
 	}
+	// Тестируем что postgres доступен до запуска приложения
 	err = connection.Ping(ctx)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("")
 	}
-	logger.Info().Msg("Connected to the database!!")
+	logger.Info().Msg("Connected to the postgres database!!")
+	// Тестируем что redis доступен до запуска приложения
+	err = rdb.Ping(ctx).Err()
+	if err != nil {
+		logger.Fatal().Err(err).Msg("")
+	}
+	logger.Info().Msg("Connected to the redis database!!")
 
 	// goose logic
 	goose.SetLogger(glog.GooseZerologLogger(&logger)) // enable zerolog logger for goose
@@ -143,7 +151,11 @@ func main() {
 		Ctx:    ctx,
 		Conf:   conf,
 	})
-	app := fiber.New()
+	app := fiber.New(
+		fiber.Config{
+			Prefork: true,
+		},
+	)
 	cfg := swagger.Config{
 		BasePath: "/",
 		FilePath: "./api/openapi.yml",

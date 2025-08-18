@@ -94,6 +94,32 @@ func encodeLoginUserV1Response(response LoginUserV1Res, w http.ResponseWriter, s
 
 		return nil
 
+	case *AcessDenied:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(403)
+		span.SetStatus(codes.Error, http.StatusText(403))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
+	case *UserNotFound:
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(404)
+		span.SetStatus(codes.Error, http.StatusText(404))
+
+		e := new(jx.Encoder)
+		response.Encode(e)
+		if _, err := e.WriteTo(w); err != nil {
+			return errors.Wrap(err, "write")
+		}
+
+		return nil
+
 	case *InternalServerError:
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(500)
@@ -110,6 +136,20 @@ func encodeLoginUserV1Response(response LoginUserV1Res, w http.ResponseWriter, s
 	default:
 		return errors.Errorf("unexpected response type: %T", response)
 	}
+}
+
+func encodeRefreshAcessTokenV1Response(response *SucessRefreshToken, w http.ResponseWriter, span trace.Span) error {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(200)
+	span.SetStatus(codes.Ok, http.StatusText(200))
+
+	e := new(jx.Encoder)
+	response.Encode(e)
+	if _, err := e.WriteTo(w); err != nil {
+		return errors.Wrap(err, "write")
+	}
+
+	return nil
 }
 
 func encodeUserRegisterV1Response(response UserRegisterV1Res, w http.ResponseWriter, span trace.Span) error {

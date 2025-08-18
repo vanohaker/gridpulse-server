@@ -17,6 +17,7 @@ func (s *AcessDenied) SetData(val Data) {
 	s.Data = val
 }
 
+func (*AcessDenied) loginUserV1Res()    {}
 func (*AcessDenied) userRegisterV1Res() {}
 
 type AddOAuthProviderV1Forbidden struct {
@@ -313,6 +314,34 @@ func (o OptString) Or(d string) string {
 	return d
 }
 
+type RefreshAcessTokenV1Req struct {
+	Data RefreshAcessTokenV1ReqData `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *RefreshAcessTokenV1Req) GetData() RefreshAcessTokenV1ReqData {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *RefreshAcessTokenV1Req) SetData(val RefreshAcessTokenV1ReqData) {
+	s.Data = val
+}
+
+type RefreshAcessTokenV1ReqData struct {
+	Refreshtoken string `json:"refreshtoken"`
+}
+
+// GetRefreshtoken returns the value of Refreshtoken.
+func (s *RefreshAcessTokenV1ReqData) GetRefreshtoken() string {
+	return s.Refreshtoken
+}
+
+// SetRefreshtoken sets the value of Refreshtoken.
+func (s *RefreshAcessTokenV1ReqData) SetRefreshtoken(val string) {
+	s.Refreshtoken = val
+}
+
 // Ref: #/components/schemas/RegisterNewUser
 type RegisterNewUser struct {
 	Username string `json:"username"`
@@ -378,6 +407,21 @@ func (s *RegisterNewUserSucess) SetData(val UserAuthData) {
 
 func (*RegisterNewUserSucess) userRegisterV1Res() {}
 
+// Ref: #/components/schemas/SucessRefreshToken
+type SucessRefreshToken struct {
+	Data Data `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *SucessRefreshToken) GetData() Data {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *SucessRefreshToken) SetData(val Data) {
+	s.Data = val
+}
+
 // Ref: #/components/schemas/UserAuthData
 type UserAuthData struct {
 	Acesstoken   string   `json:"acesstoken"`
@@ -440,3 +484,20 @@ func (s *UserData) SetUsername(val string) {
 func (s *UserData) SetEmail(val string) {
 	s.Email = val
 }
+
+// Ref: #/components/schemas/UserNotFound
+type UserNotFound struct {
+	Data Data `json:"data"`
+}
+
+// GetData returns the value of Data.
+func (s *UserNotFound) GetData() Data {
+	return s.Data
+}
+
+// SetData sets the value of Data.
+func (s *UserNotFound) SetData(val Data) {
+	s.Data = val
+}
+
+func (*UserNotFound) loginUserV1Res() {}

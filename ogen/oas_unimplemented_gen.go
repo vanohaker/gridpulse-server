@@ -49,6 +49,15 @@ func (UnimplementedHandler) LoginUserV1(ctx context.Context, req *LoginUserV1Req
 	return r, ht.ErrNotImplemented
 }
 
+// RefreshAcessTokenV1 implements Refresh_AcessToken_V1 operation.
+//
+// Refresh acesstoken.
+//
+// POST /v1/user/refrashtoken
+func (UnimplementedHandler) RefreshAcessTokenV1(ctx context.Context, req *RefreshAcessTokenV1Req) (r *SucessRefreshToken, _ error) {
+	return r, ht.ErrNotImplemented
+}
+
 // UserRegisterV1 implements User_Register_V1 operation.
 //
 // Register new user.

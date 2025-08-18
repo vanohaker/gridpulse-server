@@ -39,6 +39,11 @@ type RegisterNewUserSucess struct {
 	Data UserAuthData `json:"data"`
 }
 
+// SucessRefreshToken defines model for SucessRefreshToken.
+type SucessRefreshToken struct {
+	Data Data `json:"data"`
+}
+
 // UserAuthData defines model for UserAuthData.
 type UserAuthData struct {
 	Acesstoken   string   `json:"acesstoken"`
@@ -50,6 +55,11 @@ type UserAuthData struct {
 type UserData struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
+}
+
+// UserNotFound defines model for UserNotFound.
+type UserNotFound struct {
+	Data Data `json:"data"`
 }
 
 // Data defines model for data.
@@ -85,6 +95,13 @@ type LoginUserV1JSONBody struct {
 	Username string `json:"username"`
 }
 
+// RefreshAcessTokenV1JSONBody defines parameters for RefreshAcessTokenV1.
+type RefreshAcessTokenV1JSONBody struct {
+	Data struct {
+		Refreshtoken string `json:"refreshtoken"`
+	} `json:"data"`
+}
+
 // DeviceAddV1JSONRequestBody defines body for DeviceAddV1 for application/json ContentType.
 type DeviceAddV1JSONRequestBody DeviceAddV1JSONBody
 
@@ -93,6 +110,9 @@ type AddOauthProviderV1JSONRequestBody = AddOauthProviderV1JSONBody
 
 // LoginUserV1JSONRequestBody defines body for LoginUserV1 for application/json ContentType.
 type LoginUserV1JSONRequestBody LoginUserV1JSONBody
+
+// RefreshAcessTokenV1JSONRequestBody defines body for RefreshAcessTokenV1 for application/json ContentType.
+type RefreshAcessTokenV1JSONRequestBody RefreshAcessTokenV1JSONBody
 
 // UserRegisterV1JSONRequestBody defines body for UserRegisterV1 for application/json ContentType.
 type UserRegisterV1JSONRequestBody = RegisterNewUser
@@ -111,6 +131,9 @@ type ServerInterface interface {
 	// Login user
 	// (POST /v1/user/login)
 	LoginUserV1(c *fiber.Ctx) error
+	// Refresh acesstoken
+	// (POST /v1/user/refrashtoken)
+	RefreshAcessTokenV1(c *fiber.Ctx) error
 	// Register new user
 	// (POST /v1/user/register)
 	UserRegisterV1(c *fiber.Ctx) error
@@ -151,6 +174,12 @@ func (siw *ServerInterfaceWrapper) LoginUserV1(c *fiber.Ctx) error {
 	return siw.Handler.LoginUserV1(c)
 }
 
+// RefreshAcessTokenV1 operation middleware
+func (siw *ServerInterfaceWrapper) RefreshAcessTokenV1(c *fiber.Ctx) error {
+
+	return siw.Handler.RefreshAcessTokenV1(c)
+}
+
 // UserRegisterV1 operation middleware
 func (siw *ServerInterfaceWrapper) UserRegisterV1(c *fiber.Ctx) error {
 
@@ -185,6 +214,8 @@ func RegisterHandlersWithOptions(router fiber.Router, si ServerInterface, option
 	router.Post(options.BaseURL+"/v1/oauth/add", wrapper.AddOauthProviderV1)
 
 	router.Post(options.BaseURL+"/v1/user/login", wrapper.LoginUserV1)
+
+	router.Post(options.BaseURL+"/v1/user/refrashtoken", wrapper.RefreshAcessTokenV1)
 
 	router.Post(options.BaseURL+"/v1/user/register", wrapper.UserRegisterV1)
 

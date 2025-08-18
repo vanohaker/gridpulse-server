@@ -7,7 +7,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"github.com/rs/zerolog"
 	"github.com/vanohaker/gridpulse-server/internal/config"
-	"github.com/vanohaker/gridpulse-server/internal/database"
+	"github.com/vanohaker/gridpulse-server/internal/database/postgres"
 )
 
 var ServerInterface interface {
@@ -16,10 +16,11 @@ var ServerInterface interface {
 	AddOauthProviderV1(*fiber.Ctx) error
 	UserRegisterV1(*fiber.Ctx) error
 	LoginUserV1(*fiber.Ctx) error
+	RefreshAcessTokenV1(*fiber.Ctx) error
 }
 
 type Server struct {
-	Pgdb   *database.DatabaseStr
+	Pgdb   *postgres.DatabaseStr
 	Rdb    *redis.Client
 	Logger zerolog.Logger
 	Ctx    context.Context

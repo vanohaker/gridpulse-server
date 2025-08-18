@@ -15,6 +15,8 @@ services:
       - "traefik.http.routers.api.entrypoints=web"
       - "traefik.http.routers.api.rule=Host(`api.gridpulse.local`) && PathPrefix(`/`)"
       - "traefik.http.services.api.loadbalancer.server.port=8081"
+    networks:
+    - backend
   traefik:
     image: traefik:3.4.1
     restart: unless-stopped
@@ -39,6 +41,8 @@ services:
       - "traefik.http.routers.t.rule=Host(`t.gridpulse.local`) && (PathPrefix(`/api`) || PathPrefix(`/dashboard`))"
       - "traefik.http.services.t.loadbalancer.server.port=8080"
       # - "traefik.http.routers.t.service=dashboard@internal"
+    networks:
+    - backend
   postgres:
     image: postgres:17.5
     restart: unless-stopped
@@ -53,6 +57,8 @@ services:
     volumes:
       - ./scripts/postgresql/multiple-databases.sh:/docker-entrypoint-initdb.d/multiple-databases.sh
       - gridpulse-pg-data:/var/lib/postgresql/data
+    networks:
+    - backend
   keyclock:
     image: quay.io/keycloak/keycloak:26.2
     command: ["start-dev", "--import-realm"]
@@ -73,10 +79,18 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.kk.entrypoints=web"
       - "traefik.http.routers.kk.rule=Host(`auth.gridpulse.local`) && PathPrefix(`/`)"
+    networks:
+    - backend
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+    networks:
+    - backend
 
 volumes:
   gridpulse-pg-data:
+
+networks:
+  backend:
+    driver: bridge

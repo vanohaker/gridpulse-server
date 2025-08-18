@@ -32,6 +32,12 @@ type Handler interface {
 	//
 	// POST /v1/user/login
 	LoginUserV1(ctx context.Context, req *LoginUserV1Req) (LoginUserV1Res, error)
+	// RefreshAcessTokenV1 implements Refresh_AcessToken_V1 operation.
+	//
+	// Refresh acesstoken.
+	//
+	// POST /v1/user/refrashtoken
+	RefreshAcessTokenV1(ctx context.Context, req *RefreshAcessTokenV1Req) (*SucessRefreshToken, error)
 	// UserRegisterV1 implements User_Register_V1 operation.
 	//
 	// Register new user.

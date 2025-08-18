@@ -52,6 +52,12 @@ type Invoker interface {
 	//
 	// POST /v1/user/login
 	LoginUserV1(ctx context.Context, request *LoginUserV1Req) (LoginUserV1Res, error)
+	// RefreshAcessTokenV1 invokes Refresh_AcessToken_V1 operation.
+	//
+	// Refresh acesstoken.
+	//
+	// POST /v1/user/refrashtoken
+	RefreshAcessTokenV1(ctx context.Context, request *RefreshAcessTokenV1Req) (*SucessRefreshToken, error)
 	// UserRegisterV1 invokes User_Register_V1 operation.
 	//
 	// Register new user.
@@ -461,6 +467,81 @@ func (c *Client) sendLoginUserV1(ctx context.Context, request *LoginUserV1Req) (
 
 	stage = "DecodeResponse"
 	result, err := decodeLoginUserV1Response(resp)
+	if err != nil {
+		return res, errors.Wrap(err, "decode response")
+	}
+
+	return result, nil
+}
+
+// RefreshAcessTokenV1 invokes Refresh_AcessToken_V1 operation.
+//
+// Refresh acesstoken.
+//
+// POST /v1/user/refrashtoken
+func (c *Client) RefreshAcessTokenV1(ctx context.Context, request *RefreshAcessTokenV1Req) (*SucessRefreshToken, error) {
+	res, err := c.sendRefreshAcessTokenV1(ctx, request)
+	return res, err
+}
+
+func (c *Client) sendRefreshAcessTokenV1(ctx context.Context, request *RefreshAcessTokenV1Req) (res *SucessRefreshToken, err error) {
+	otelAttrs := []attribute.KeyValue{
+		otelogen.OperationID("Refresh_AcessToken_V1"),
+		semconv.HTTPRequestMethodKey.String("POST"),
+		semconv.HTTPRouteKey.String("/v1/user/refrashtoken"),
+	}
+
+	// Run stopwatch.
+	startTime := time.Now()
+	defer func() {
+		// Use floating point division here for higher precision (instead of Millisecond method).
+		elapsedDuration := time.Since(startTime)
+		c.duration.Record(ctx, float64(elapsedDuration)/float64(time.Millisecond), metric.WithAttributes(otelAttrs...))
+	}()
+
+	// Increment request counter.
+	c.requests.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+
+	// Start a span for this request.
+	ctx, span := c.cfg.Tracer.Start(ctx, RefreshAcessTokenV1Operation,
+		trace.WithAttributes(otelAttrs...),
+		clientSpanKind,
+	)
+	// Track stage for error reporting.
+	var stage string
+	defer func() {
+		if err != nil {
+			span.RecordError(err)
+			span.SetStatus(codes.Error, stage)
+			c.errors.Add(ctx, 1, metric.WithAttributes(otelAttrs...))
+		}
+		span.End()
+	}()
+
+	stage = "BuildURL"
+	u := uri.Clone(c.requestURL(ctx))
+	var pathParts [1]string
+	pathParts[0] = "/v1/user/refrashtoken"
+	uri.AddPathParts(u, pathParts[:]...)
+
+	stage = "EncodeRequest"
+	r, err := ht.NewRequest(ctx, "POST", u)
+	if err != nil {
+		return res, errors.Wrap(err, "create request")
+	}
+	if err := encodeRefreshAcessTokenV1Request(request, r); err != nil {
+		return res, errors.Wrap(err, "encode request")
+	}
+
+	stage = "SendRequest"
+	resp, err := c.cfg.Client.Do(r)
+	if err != nil {
+		return res, errors.Wrap(err, "do request")
+	}
+	defer resp.Body.Close()
+
+	stage = "DecodeResponse"
+	result, err := decodeRefreshAcessTokenV1Response(resp)
 	if err != nil {
 		return res, errors.Wrap(err, "decode response")
 	}

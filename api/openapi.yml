@@ -72,12 +72,54 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginSucess'
+        '403':
+          description: Acess denied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcessDenied'
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserNotFound'
         '500':
           description: Login internal error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/InternalServerError'
+  /v1/user/refrashtoken:
+    post:
+      summary: Refresh acesstoken
+      operationId: Refresh_AcessToken_V1
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - data
+              properties:
+                data:
+                  type: object
+                  required:
+                  - refreshtoken
+                  properties:
+                    refreshtoken:
+                      type: string
+      responses:
+        '200':
+          description: Sucess refresh
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SucessRefreshToken'
+
   /v1/oauth/add:
     post:
       summary: Add oauth provider
@@ -200,6 +242,13 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/UserAuthData'
+    UserNotFound:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/data'
     InternalServerError:
       type: object
       required:
@@ -237,6 +286,13 @@ components:
           type: string
         email:
           type: string
+    SucessRefreshToken:
+      type: object
+      required:
+      - data
+      properties:
+        data:
+          $ref: '#/components/schemas/data'
     data:
       type: object
       required:

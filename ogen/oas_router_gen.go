@@ -164,24 +164,58 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 							return
 						}
 
-					case 'r': // Prefix: "register"
+					case 'r': // Prefix: "re"
 
-						if l := len("register"); len(elem) >= l && elem[0:l] == "register" {
+						if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch r.Method {
-							case "POST":
-								s.handleUserRegisterV1Request([0]string{}, elemIsEscaped, w, r)
-							default:
-								s.notAllowed(w, r, "POST")
+							break
+						}
+						switch elem[0] {
+						case 'f': // Prefix: "frashtoken"
+
+							if l := len("frashtoken"); len(elem) >= l && elem[0:l] == "frashtoken" {
+								elem = elem[l:]
+							} else {
+								break
 							}
 
-							return
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleRefreshAcessTokenV1Request([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
+						case 'g': // Prefix: "gister"
+
+							if l := len("gister"); len(elem) >= l && elem[0:l] == "gister" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch r.Method {
+								case "POST":
+									s.handleUserRegisterV1Request([0]string{}, elemIsEscaped, w, r)
+								default:
+									s.notAllowed(w, r, "POST")
+								}
+
+								return
+							}
+
 						}
 
 					}
@@ -402,28 +436,66 @@ func (s *Server) FindPath(method string, u *url.URL) (r Route, _ bool) {
 							}
 						}
 
-					case 'r': // Prefix: "register"
+					case 'r': // Prefix: "re"
 
-						if l := len("register"); len(elem) >= l && elem[0:l] == "register" {
+						if l := len("re"); len(elem) >= l && elem[0:l] == "re" {
 							elem = elem[l:]
 						} else {
 							break
 						}
 
 						if len(elem) == 0 {
-							// Leaf node.
-							switch method {
-							case "POST":
-								r.name = UserRegisterV1Operation
-								r.summary = "Register new user"
-								r.operationID = "User_Register_V1"
-								r.pathPattern = "/v1/user/register"
-								r.args = args
-								r.count = 0
-								return r, true
-							default:
-								return
+							break
+						}
+						switch elem[0] {
+						case 'f': // Prefix: "frashtoken"
+
+							if l := len("frashtoken"); len(elem) >= l && elem[0:l] == "frashtoken" {
+								elem = elem[l:]
+							} else {
+								break
 							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = RefreshAcessTokenV1Operation
+									r.summary = "Refresh acesstoken"
+									r.operationID = "Refresh_AcessToken_V1"
+									r.pathPattern = "/v1/user/refrashtoken"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
+						case 'g': // Prefix: "gister"
+
+							if l := len("gister"); len(elem) >= l && elem[0:l] == "gister" {
+								elem = elem[l:]
+							} else {
+								break
+							}
+
+							if len(elem) == 0 {
+								// Leaf node.
+								switch method {
+								case "POST":
+									r.name = UserRegisterV1Operation
+									r.summary = "Register new user"
+									r.operationID = "User_Register_V1"
+									r.pathPattern = "/v1/user/register"
+									r.args = args
+									r.count = 0
+									return r, true
+								default:
+									return
+								}
+							}
+
 						}
 
 					}

@@ -6,9 +6,10 @@ package ogen
 type OperationName = string
 
 const (
-	AddOAuthProviderV1Operation OperationName = "AddOAuthProviderV1"
-	DeviceAddV1Operation        OperationName = "DeviceAddV1"
-	LivenesprobeOperation       OperationName = "Livenesprobe"
-	LoginUserV1Operation        OperationName = "LoginUserV1"
-	UserRegisterV1Operation     OperationName = "UserRegisterV1"
+	AddOAuthProviderV1Operation  OperationName = "AddOAuthProviderV1"
+	DeviceAddV1Operation         OperationName = "DeviceAddV1"
+	LivenesprobeOperation        OperationName = "Livenesprobe"
+	LoginUserV1Operation         OperationName = "LoginUserV1"
+	RefreshAcessTokenV1Operation OperationName = "RefreshAcessTokenV1"
+	UserRegisterV1Operation      OperationName = "UserRegisterV1"
 )
